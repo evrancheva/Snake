@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+    <head>
+    <meta charset="UTF-8">
+    <title>Snake</title>
+    <style type="text/css">
+
+    body {
+    overflow:hidden;
+}
+#top, #bottom, #left, #right {
+    background: #a5ebff;
+    position: fixed;
+}
+#left, #right {
+    top: 0; bottom: 0;
+    width: 15px;
+}
+#left { left: 0; }
+#right { right: 0; }
+
+#top, #bottom {
+    left: 0; right: 0;
+    height: 15px;
+}
+#top { top: 0; }
+#bottom { bottom: 0; }
+
+</style>
+</head>
+<body>
+
+<div>
+</div>
+<div id="left"></div>
+    <div id="right"></div>
+    <div id="top"></div>
+    <div id="bottom"></div>
+    <div id="scores" style="font-size: 14px;bottom: 0px;position: absolute; ">Scores: 0</div>
+</body>
+</html>
+
+<script>
+	document.onkeydown = movingWithArrows;
+	var borderSizePx= 15;
+	var scores = 0;
+	var snakeLength = 8;
+	var gridSize = 15;
+	var snake_array = [];
+	var direction;
+	var startingPointLeftPixels = gridSize *gridSize;
+	var previousDirection;
+	var interval = setInterval(function() {
+		CheckDirection()
+	}, 100);
+	CreateSnake();
+	CreateFood();
+	CheckIfSnakeIsEating();
+
+	function CreateSnake() {
+		for (var i = 1; i <= snakeLength; i++) {
+			var div = document.createElement('div');
+			div.id = 'movingSquare' + [i];
+			div.style = "width:" + gridSize + "px; height:" + gridSize + "px; background-color:yellow; left:" + startingPointLeftPixels+ "px; top:30px; position:absolute;";
+			document.getElementsByTagName('div')[0].appendChild(div);
+			startingPointLeftPixels -= gridSize;
+			snake_array.push(div);
+		}
+	}
+	function CheckIfSnakeIsEating() {
+		var firstElement = document.getElementById("movingSquare1");
+		var food = document.getElementById("food");
+		if (CheckForCollision(firstElement,food)) {
+			RemoveFood();
+			ExtendSnake();
+			scores++;
+			document.getElementById("scores").innerHTML = "Scores: " + scores;
+		}
+	}
+	function CheckForCollision(div1, div2){
+		var nameOfFirstDiv = div1.id;
+		var firstDiv = document.getElementById(nameOfFirstDiv);
+		var topOfFirstDiv = parseInt(firstDiv.style.top);
+		var leftOfFirstDiv = parseInt(firstDiv.style.left);
+		var nameOfSecondDiv = div2.id;
+		var secondDiv = document.getElementById(nameOfSecondDiv);
+		var topOfSecondDiv = parseInt(secondDiv.style.top);
+		var leftOfSecondDiv = parseInt(secondDiv.style.left);
+		return leftOfFirstDiv == leftOfSecondDiv && topOfFirstDiv == topOfSecondDiv;
+	}	
+	function ExtendSnake() {
+		var snakeArrayLength = snake_array.length;
+		for (var i = snakeArrayLength + 1; i >= snakeArrayLength + 1; i--) {
+			var LastElement = document.getElementById(snake_array[snake_array.length - 1].id);
+			var topOfLastElement = parseInt(LastElement.style.top);
+			var leftOfLastElement = parseInt(LastElement.style.left);
+			var additionalExtensionSquare = document.createElement('div');
+			additionalExtensionSquare.id = 'movingSquare' + [i];
+			additionalExtensionSquare.style = "width:" + gridSize + "px; height:" + gridSize + "px; background-color:yellow; left:" + leftOfLastElement + "px; top:" + topOfLastElement + "px; position:absolute;";
+			document.getElementsByTagName('div')[0].appendChild(additionalExtensionSquare);
+			snake_array.push(additionalExtensionSquare);
+		}
+	}
+
+	function CheckIfSnakeBitesItself() {
+		for (var i = snake_array.length - 1; i > 1; i--) {
+			var firstElement = document.getElementById("movingSquare1");
+			var secondElement = document.getElementById(snake_array[i].id);
+			if (CheckForCollision(firstElement,secondElement)) {
+				document.write("Game Over");
+				clearInterval(interval);
+			}
+		}
+	}
+	function CreateFood() {
+		var gridSize = 15;
+		var maxLeft = window.innerWidth - gridSize;
+		var maxTop = window.innerHeight - gridSize;
+		var LeftPxOfFood = Math.floor(Math.random() * (maxLeft + gridSize) / gridSize);
+		LeftPxOfFood *= gridSize;
+		var topPixelsOfFood = Math.floor(Math.random() * (maxTop + gridSize) / gridSize);
+		topPixelsOfFood *= gridSize;
+		if(topPixelsOfFood <borderSizePx){
+			topPixelsOfFood=borderSizePx;
+		}
+		if(topPixelsOfFood > window.innerHeight-2*borderSizePx) {
+			topPixelsOfFood = window.innerHeight-2*borderSizePx;
+			topPixelsOfFood = MakeNumbersMultiplesOfGridSize(topPixelsOfFood,gridSize);
+		}
+		if(LeftPxOfFood <borderSizePx){
+			LeftPxOfFood=borderSizePx;
+		}
+		if(LeftPxOfFood > window.innerWidth-2*borderSizePx){
+			LeftPxOfFood = window.innerWidth-2*borderSizePx;
+			LeftPxOfFood = MakeNumbersMultiplesOfGridSize(LeftPxOfFood,gridSize);
+		}
+		var food = document.createElement('div');
+		food.id = 'food';
+		food.style = "width:" + gridSize + "px; height:" + gridSize + "px; background-color:red; left:" + LeftPxOfFood + "px; top:" + topPixelsOfFood + "px; position:absolute;";
+		document.getElementsByTagName('div')[0].appendChild(food);
+	}
+	
+	function MakeNumbersMultiplesOfGridSize(px,gridSize){
+			px -=(px%gridSize);
+			return px;
+	}
+	function RemoveFood() {
+		var food = document.getElementById("food");
+		food.parentNode.removeChild(food);
+		CreateFood();
+	}
+	function movingWithArrows(e) {
+		if (e.keyCode == '39'  ) {
+			if(previousDirection !="left"){
+				direction = "right";
+			}
+			previousDirection = "right";
+		} else if (e.keyCode == '37') {
+			if(previousDirection !="right"){
+				direction = "left";
+			}
+			previousDirection ="left";
+		} else if (e.keyCode == '40') {
+			if(previousDirection !="up"){
+				direction = "down";
+			}
+			previousDirection = "down";
+		} else if (e.keyCode == '38') {
+			if(previousDirection !="down"){
+				direction = "up";
+			}
+			previousDirection = "up";
+		}
+	}
+
+	function CheckDirection() {
+		var leftOfSnakeHead = parseInt(snake_array[0].style.left);
+		var topOfSnakeHead = parseInt(snake_array[0].style.top);
+		if(direction != null){
+			FollowTheFirstSquare();
+			CheckIfSnakeIsEating();
+			CheckIfSnakeBitesItself();
+			CheckIfSnakeCollidesWithBorder();
+		}
+		if (direction =="right") {
+			leftOfSnakeHead += gridSize;
+		} else if (direction == "left") {
+			leftOfSnakeHead -= gridSize;
+		} else if (direction == "down") {
+			topOfSnakeHead += gridSize;
+		} else if (direction == "up") {
+			topOfSnakeHead -= gridSize;
+		}
+		leftOfSnakeHead += "px";
+		snake_array[0].style.left = leftOfSnakeHead;
+		topOfSnakeHead += "px";
+		snake_array[0].style.top = topOfSnakeHead;
+	}
+	
+	function FollowTheFirstSquare() {
+		for (i = snake_array.length - 1; i > 0; i--) {
+			snake_array[i].style.top = snake_array[i - 1].style.top;
+			snake_array[i].style.left = snake_array[i - 1].style.left;
+		}
+	}
+	
+	function CheckIfSnakeCollidesWithBorder(){
+		var leftOfSnakeHead = parseInt(snake_array[0].style.left);
+		var topOfSnakeHead = parseInt(snake_array[0].style.top);
+		var windowHeight = window.innerHeight-2*borderSizePx;
+		var windowWidth = window.innerWidth-2*borderSizePx;
+		windowHeight = MakeNumbersMultiplesOfGridSize(windowHeight,gridSize);
+		windowWidth = MakeNumbersMultiplesOfGridSize(windowWidth,gridSize);
+		if(leftOfSnakeHead < borderSizePx || leftOfSnakeHead > windowWidth || topOfSnakeHead <borderSizePx || topOfSnakeHead > windowHeight){
+			document.write("Game Over");
+			clearInterval(interval);
+		}
+	}
+
+</script>
