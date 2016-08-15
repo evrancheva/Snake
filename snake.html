@@ -3,30 +3,11 @@
     <head>
     <meta charset="UTF-8">
     <title>Snake</title>
-    <style type="text/css">
-
-    body {
-    overflow:hidden;
-}
-#top, #bottom, #left, #right {
-    background: #a5ebff;
-    position: fixed;
-}
-#left, #right {
-    top: 0; bottom: 0;
-    width: 15px;
-}
-#left { left: 0; }
-#right { right: 0; }
-
-#top, #bottom {
-    left: 0; right: 0;
-    height: 15px;
-}
-#top { top: 0; }
-#bottom { bottom: 0; }
-
-</style>
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
 
@@ -37,11 +18,12 @@
     <div id="top"></div>
     <div id="bottom"></div>
     <div id="scores" style="font-size: 14px;bottom: 0px;position: absolute; ">Scores: 0</div>
+	<div id="message"  class="modal-content" style="display:none"></div>
 </body>
 </html>
 
 <script>
-	document.onkeydown = movingWithArrows;
+	document.onkeydown=movingWithArrows;
 	var borderSizePx= 15;
 	var scores = 0;
 	var snakeLength = 8;
@@ -50,13 +32,49 @@
 	var direction;
 	var startingPointLeftPixels = gridSize *gridSize;
 	var previousDirection;
-	var interval = setInterval(function() {
-		CheckDirection()
-	}, 100);
+	var nameOfPerson;
+	var message = document.getElementById("message");
+	var missingMessage = document.getElementById("missingMessage");
+	var interval = setInterval(function(){ CheckDirection()}, 100);
 	CreateSnake();
 	CreateFood();
 	CheckIfSnakeIsEating();
+		
+	function GameOver(){
+		document.onkeydown = null;
+		clearInterval(interval);
+		AskForName();
+	}
 
+	function AskForName(){
+		var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function() {
+			if (xhttp.readyState == 4 && xhttp.status == 200) {
+				message.style.display = "block";
+				message.innerHTML = xhttp.responseText;
+			}
+		  };
+		xhttp.open("GET", "promptModal.php?&scores=" + scores, true);
+		xhttp.send();
+	}
+
+	function SendToDB(){
+		var scores = document.getElementsByName("scores")[0].value;
+		var nameOfPerson = document.getElementsByName("name")[0].value;
+		var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function() {
+			if (xhttp.readyState == 4 && xhttp.status == 200) {
+				message.style.display = "block";
+				message.innerHTML = xhttp.responseText;
+			}
+		  };
+		xhttp.open("GET", "rankList.php?nameOfPerson=" + nameOfPerson + "&scores=" + scores, true);
+		xhttp.send();
+	}
+	function Reload(){
+		window.location.reload();
+	}
+	
 	function CreateSnake() {
 		for (var i = 1; i <= snakeLength; i++) {
 			var div = document.createElement('div');
@@ -86,6 +104,7 @@
 		var secondDiv = document.getElementById(nameOfSecondDiv);
 		var topOfSecondDiv = parseInt(secondDiv.style.top);
 		var leftOfSecondDiv = parseInt(secondDiv.style.left);
+		
 		return leftOfFirstDiv == leftOfSecondDiv && topOfFirstDiv == topOfSecondDiv;
 	}	
 	function ExtendSnake() {
@@ -107,8 +126,7 @@
 			var firstElement = document.getElementById("movingSquare1");
 			var secondElement = document.getElementById(snake_array[i].id);
 			if (CheckForCollision(firstElement,secondElement)) {
-				document.write("Game Over");
-				clearInterval(interval);
+				GameOver();
 			}
 		}
 	}
@@ -141,38 +159,67 @@
 	}
 	
 	function MakeNumbersMultiplesOfGridSize(px,gridSize){
+		if(px%gridSize!=0){
 			px -=(px%gridSize);
 			return px;
+		}
 	}
+	
 	function RemoveFood() {
 		var food = document.getElementById("food");
 		food.parentNode.removeChild(food);
 		CreateFood();
 	}
+
+	function FollowTheFirstSquare() {
+		for (i = snake_array.length - 1; i > 0; i--) {
+			snake_array[i].style.top = snake_array[i - 1].style.top;
+			snake_array[i].style.left = snake_array[i - 1].style.left;
+		}
+	}
+	function CheckIfSnakeCollidesWithBorder(){
+		var leftOfSnakeHead = parseInt(snake_array[0].style.left);
+		var topOfSnakeHead = parseInt(snake_array[0].style.top);
+		var windowHeight = window.innerHeight-2*borderSizePx;
+		var windowWidth = window.innerWidth-2*borderSizePx;
+		if(windowHeight%gridSize != 0){
+				windowHeight = windowHeight - (windowHeight%gridSize);
+		}
+		if(windowWidth%gridSize != 0){
+				windowWidth = windowWidth - (windowWidth%gridSize);
+		}
+		if(leftOfSnakeHead < borderSizePx || leftOfSnakeHead > windowWidth || topOfSnakeHead <borderSizePx || topOfSnakeHead > windowHeight){
+			GameOver();
+		}
+	}
+
 	function movingWithArrows(e) {
 		if (e.keyCode == '39'  ) {
 			if(previousDirection !="left"){
 				direction = "right";
+				previousDirection = "right";
 			}
-			previousDirection = "right";
+			
 		} else if (e.keyCode == '37') {
 			if(previousDirection !="right"){
 				direction = "left";
+				previousDirection ="left";
 			}
-			previousDirection ="left";
+			
 		} else if (e.keyCode == '40') {
 			if(previousDirection !="up"){
 				direction = "down";
+				previousDirection = "down";
 			}
-			previousDirection = "down";
+		
 		} else if (e.keyCode == '38') {
 			if(previousDirection !="down"){
 				direction = "up";
+				previousDirection = "up";
 			}
-			previousDirection = "up";
+			
 		}
 	}
-
 	function CheckDirection() {
 		var leftOfSnakeHead = parseInt(snake_array[0].style.left);
 		var topOfSnakeHead = parseInt(snake_array[0].style.top);
@@ -196,25 +243,4 @@
 		topOfSnakeHead += "px";
 		snake_array[0].style.top = topOfSnakeHead;
 	}
-	
-	function FollowTheFirstSquare() {
-		for (i = snake_array.length - 1; i > 0; i--) {
-			snake_array[i].style.top = snake_array[i - 1].style.top;
-			snake_array[i].style.left = snake_array[i - 1].style.left;
-		}
-	}
-	
-	function CheckIfSnakeCollidesWithBorder(){
-		var leftOfSnakeHead = parseInt(snake_array[0].style.left);
-		var topOfSnakeHead = parseInt(snake_array[0].style.top);
-		var windowHeight = window.innerHeight-2*borderSizePx;
-		var windowWidth = window.innerWidth-2*borderSizePx;
-		windowHeight = MakeNumbersMultiplesOfGridSize(windowHeight,gridSize);
-		windowWidth = MakeNumbersMultiplesOfGridSize(windowWidth,gridSize);
-		if(leftOfSnakeHead < borderSizePx || leftOfSnakeHead > windowWidth || topOfSnakeHead <borderSizePx || topOfSnakeHead > windowHeight){
-			document.write("Game Over");
-			clearInterval(interval);
-		}
-	}
-
 </script>
