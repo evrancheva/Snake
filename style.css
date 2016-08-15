@@ -1,0 +1,91 @@
+body {
+    overflow: hidden;
+}
+#top,
+#bottom,
+#left,
+#right {
+    background: #a5ebff;
+    position: fixed;
+}
+#left,
+#right {
+    top: 0;
+    bottom: 0;
+    width: 15px;
+}
+#left {
+    left: 0;
+}
+#right {
+    right: 0;
+}
+#top,
+#bottom {
+    left: 0;
+    right: 0;
+    height: 15px;
+}
+#top {
+    top: 0;
+}
+#bottom {
+    bottom: 0;
+}
+#message {
+    background-color: white;
+    position: absolute;
+    width: 400px;
+}
+.btn {
+    margin-top: -20px;
+    margin-left: 70px;
+    font-size: 9px;
+}
+span {
+    font-size: 20px;
+    margin: 10px;
+}
+table {
+    border-collapse: collapse;
+    border: 1px solid #38678f;
+    background: aliceblue;
+    font-size: 10px;
+}
+th {
+    background: steelblue;
+    width: 25%;
+    font-weight: lighter;
+    text-shadow: 0 1px 0 #38678f;
+    color: aliceblue;
+    border: 1px solid #38678f;
+    box-shadow: inset 0px 1px 2px #568ebd;
+    transition: all 0.2s;
+    font-size: 10px;
+}
+.modal-content {
+    position: fixed;
+    top: 22%;
+    left: 50%;
+    margin-top: -9em;
+    /*set to a negative number 1/2 of your height*/
+    
+    margin-left: -15em;
+    /*set to a negative number 1/2 of your width*/
+    
+    padding: 20px;
+}
+.text {
+    height: 20px;
+}
+td {
+    padding: 5px;
+    font-size: 10px;
+}
+.enter {
+    font-size: 18px;
+    color: darkgrey;
+}
+.alert {
+    padding: 10px;
+}
