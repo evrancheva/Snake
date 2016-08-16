@@ -17,20 +17,21 @@
     <div id="right"></div>
     <div id="top"></div>
     <div id="bottom"></div>
-    <div id="scores" style="font-size: 14px;bottom: 0px;position: absolute; ">Scores: 0</div>
+    <div id="scores" style="font-size: 25px;bottom: 0px;position: absolute; ">Scores: 0</div>
 	<div id="message"  class="modal-content" style="display:none"></div>
+	
 </body>
 </html>
 
 <script>
 	document.onkeydown=movingWithArrows;
-	var borderSizePx= 15;
+	var borderSizePx= 30;
 	var scores = 0;
 	var snakeLength = 8;
-	var gridSize = 15;
+	var gridSize = 30;
 	var snake_array = [];
 	var direction;
-	var startingPointLeftPixels = gridSize *gridSize;
+	var startingPointLeftPixels = gridSize *10;
 	var previousDirection;
 	var nameOfPerson;
 	var message = document.getElementById("message");
@@ -44,8 +45,14 @@
 		document.onkeydown = null;
 		clearInterval(interval);
 		AskForName();
+		
 	}
-
+	function CheckIfNameIsCorrect(){
+		var nameOfPerson = document.getElementsByName("name")[0].value;
+		if(nameOfPerson == null){
+			
+		}
+	}
 	function AskForName(){
 		var xhttp = new XMLHttpRequest();
 			xhttp.onreadystatechange = function() {
@@ -72,14 +79,14 @@
 		xhttp.send();
 	}
 	function Reload(){
-		window.location.reload();
+		 document.location.href = "snake.html";
 	}
 	
 	function CreateSnake() {
 		for (var i = 1; i <= snakeLength; i++) {
 			var div = document.createElement('div');
 			div.id = 'movingSquare' + [i];
-			div.style = "width:" + gridSize + "px; height:" + gridSize + "px; background-color:yellow; left:" + startingPointLeftPixels+ "px; top:30px; position:absolute;";
+			div.style = "width:" + gridSize + "px; height:" + gridSize + "px; background-color:yellow; left:" + startingPointLeftPixels + "px; top:60px; position:absolute;";
 			document.getElementsByTagName('div')[0].appendChild(div);
 			startingPointLeftPixels -= gridSize;
 			snake_array.push(div);
@@ -131,7 +138,7 @@
 		}
 	}
 	function CreateFood() {
-		var gridSize = 15;
+		var gridSize = 30;
 		var maxLeft = window.innerWidth - gridSize;
 		var maxTop = window.innerHeight - gridSize;
 		var LeftPxOfFood = Math.floor(Math.random() * (maxLeft + gridSize) / gridSize);
@@ -217,8 +224,7 @@
 				direction = "up";
 				previousDirection = "up";
 			}
-			
-		}
+		}		
 	}
 	function CheckDirection() {
 		var leftOfSnakeHead = parseInt(snake_array[0].style.left);
@@ -237,7 +243,7 @@
 			topOfSnakeHead += gridSize;
 		} else if (direction == "up") {
 			topOfSnakeHead -= gridSize;
-		}
+		} 
 		leftOfSnakeHead += "px";
 		snake_array[0].style.left = leftOfSnakeHead;
 		topOfSnakeHead += "px";

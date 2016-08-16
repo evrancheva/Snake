@@ -16,7 +16,7 @@
     <br>
     <input name="scores" type="hidden" value="<?php echo $scores;?>"></input>
     <div class='btn-group'>
-        <button class="btn btn-primary btn-md" type="button" onclick="SendToDB()" value="Submit">Submit</button>
+        <button class="btn btn-primary btn-lg" type="button" onclick="SendToDB()" value="Submit">Submit</button>
         </button>
     </div>
 </body>
